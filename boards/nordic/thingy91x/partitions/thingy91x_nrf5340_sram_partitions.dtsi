@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ *
+ * SRAM partitions for Thingy:91 X nRF5340 (both TF-M and non-TF-M variants)
+ * Uses standard SoC defaults plus Thingy91x-specific regions
+ */
+
+/* Include standard nRF5340 SRAM partitions (handles TF-M conditionally) */
+#include <nordic/nrf5340_sram_partition.dtsi>
+#include <nordic/nrf5340_shared_sram_partition.dtsi>
+
+/ {
+	reserved-memory {
+		/* Thingy91x-specific regions from original PM files */
+
+		pcd_sram: pcd@20000000 {
+			/* Protocol Control Data */
+			reg = <0x20000000 DT_SIZE_K(8)>;
+		};
+
+		sram_retained_mem: retained@2007fc00 {
+			/* Retained memory at end of SRAM (within shared region) */
+			reg = <0x2007FC00 DT_SIZE_K(1)>;
+		};
+
+		/* Network core primary slot simulation (256KB) - matches legacy mcuboot_primary_1 */
+		mcuboot_primary_1: mcuboot_primary_1@20020000 {
+			compatible = "zephyr,memory-region";
+			reg = <0x20020000 DT_SIZE_K(256)>;
+			zephyr,memory-region = "mcuboot_primary_1";
+		};
+	};
+};
+
+/* Create simulated flash device for network core primary slot */
+/ {
+	ram_flash: ram-flash {
+		compatible = "zephyr,sim-flash";
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		erase-value = <0xff>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			/* Network core primary slot (256KB) */
+			mcuboot_primary_1_partition: partition@0 {
+				label = "mcuboot_primary_1";
+				reg = <0x00000000 DT_SIZE_K(256)>;
+			};
+		};
+	};
+};

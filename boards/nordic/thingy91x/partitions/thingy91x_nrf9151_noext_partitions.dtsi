@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ *
+ * DTS-based partition layout for Thingy:91 X nRF9151 (No TF-M + No External Flash)
+ * Converted from thingy91x_nrf9151_pm_static_no_ext_flash_no_tfm.yml
+ */
+
+/* Internal Flash Partitions */
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/* B0 - Immutable bootloader (32KB) */
+		boot_partition: b0_partition: partition@0 {
+			label = "b0";
+			reg = <0x00000000 0x8000>;
+		};
+
+		/* S0 - MCUboot slot 0 (80KB) */
+		s0_partition: partition@8000 {
+			label = "s0";
+			reg = <0x00008000 0x14000>;
+		};
+
+		/* S1 - MCUboot slot 1 (80KB) */
+		s1_partition: partition@1c000 {
+			label = "s1";
+			reg = <0x0001C000 0x14000>;
+		};
+
+		/* Primary application area (420KB - unified, no TF-M) */
+		slot0_partition: partition@30000 {
+			label = "image-0";
+			reg = <0x00030000 0x67000>;
+		};
+
+		/* Secondary application area (420KB - matches primary) */
+		slot1_partition: partition@97000 {
+			label = "image-1";
+			reg = <0x00097000 0x67000>;
+		};
+
+		/* Settings storage (8KB) */
+		storage_partition: partition@fe000 {
+			label = "storage";
+			reg = <0x000FE000 0x2000>;
+		};
+	};
+};

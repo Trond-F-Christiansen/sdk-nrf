@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/ {
+	/*
+	 * SRAM memory planning for nRF9151 without ARM TrustZone-M (no secure partition)
+	 * Total 256 kB SRAM:
+	 * - 40 kB SRAM reserved for modem library (sram0_ns_modem)
+	 * - 216 kB allocated to the application (sram0_ns_app)
+	 */
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		sram0_ns_modem: image_ns_modem@20000000 {
+			/* Modem (shared) memory - starts at SRAM base */
+			reg = <0x20000000 DT_SIZE_K(40)>;
+		};
+
+		sram0_ns_app: image_ns_app@2000A000 {
+			/* Application memory - remaining 216KB */
+			reg = <0x2000A000 DT_SIZE_K(216)>;
+		};
+	};
+};

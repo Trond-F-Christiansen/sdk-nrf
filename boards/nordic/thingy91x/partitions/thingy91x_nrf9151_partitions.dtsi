@@ -1,0 +1,67 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ *
+ * DTS-based partition layout for Thingy:91 X nRF9151 (No TF-M)
+ * Converted from thingy91x_nrf9151_pm_static_no_tfm.yml
+ */
+
+/* Internal Flash Partitions */
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/* B0 - Immutable bootloader (32KB) */
+		boot_partition: b0_partition: partition@0 {
+			label = "b0";
+			reg = <0x00000000 0x8000>;
+		};
+
+		/* S0 - MCUboot slot 0 (80KB) */
+		s0_partition: partition@8000 {
+			label = "s0";
+			reg = <0x00008000 0x14000>;
+		};
+
+		/* S1 - MCUboot slot 1 (80KB) */
+		s1_partition: partition@1c000 {
+			label = "s1";
+			reg = <0x0001C000 0x14000>;
+		};
+
+		/* Primary application area (832KB - unified, no TF-M) */
+		slot0_partition: partition@30000 {
+			label = "image-0";
+			reg = <0x00030000 0xD0000>;
+		};
+	};
+};
+
+/* External Flash Partitions */
+&flash_ext {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/* Secondary application area (832KB - matches primary) */
+		slot1_partition: partition@0 {
+			label = "image-1";
+			reg = <0x00000000 0xD0000>;
+		};
+
+		/* FMFU storage for modem firmware updates (4MB) */
+		fmfu_partition: partition@d0000 {
+			label = "fmfu_storage";
+			reg = <0x000D0000 0x400000>;
+		};
+
+		/* Settings storage (8KB) */
+		storage_partition: partition@4d0000 {
+			label = "storage";
+			reg = <0x004D0000 0x2000>;
+		};
+	};
+};

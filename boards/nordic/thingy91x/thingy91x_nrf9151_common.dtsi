@@ -177,6 +177,5 @@
 	pinctrl-names = "default", "sleep";
 };
 
-/* Include default memory partition configuration file. */
-/* This is not the layout that's actually used! It's overridden by Partition Manager. */
-#include <vendor/nordic/nrf91xx_partition.dtsi>
+/* Partition configuration is now handled by sysbuild via DTC_OVERLAY_FILE */
+/* No conditional includes needed - sysbuild selects the appropriate partition files */
