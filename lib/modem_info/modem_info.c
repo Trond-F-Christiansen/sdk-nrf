@@ -21,7 +21,7 @@
 #include <zephyr/types.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(modem_info);
+LOG_MODULE_REGISTER(modem_info, CONFIG_MODEM_INFO_LOG_LEVEL);
 
 #define INVALID_DESCRIPTOR	-1
 

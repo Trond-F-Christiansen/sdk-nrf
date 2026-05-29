@@ -68,4 +68,12 @@ config MODEM_INFO_ADD_DEVICE
 	help
 	  Add the device information to outgoing deviceInfo device messages.
 
+module = MODEM_INFO
+module-str = modem-info
+source "subsys/logging/Kconfig.template.log_config"
+
+module = MODEM_INFO_PARAMS
+module-str = modem-info-params
+source "subsys/logging/Kconfig.template.log_config"
+
 endif # MODEM_INFO
