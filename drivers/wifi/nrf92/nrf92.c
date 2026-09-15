@@ -17,6 +17,7 @@
 #include <zephyr/logging/log.h>
 
 #include <nrf_modem_wifi_scan.h>
+#include <nrf_errno.h>
 
 #define DT_DRV_COMPAT nordic_nrf92_wifi
 
@@ -49,6 +50,11 @@ static void nrf92_wifi_scan_evt_handler(const struct nrf_modem_wifi_scan_event *
 {
 	switch (evt->id) {
 	case NRF_MODEM_WIFI_SCAN_EVT_RESULT:
+		if (scan_cb == NULL) {
+			/* Late result from a cancelled or abandoned scan; nothing to report. */
+			LOG_DBG("Late scan result received after scan was cancelled or abandoned");
+			break;
+		}
 		if (!evt->result.finished) {
 			struct wifi_scan_result res = { 0 };
 
@@ -152,7 +158,16 @@ static int nrf92_wifi_scan(const struct device *dev,
 
 	err = nrf_modem_wifi_scan_start(&nrf_modem_params);
 	if (err) {
-		LOG_ERR("Starting Wi-Fi scan failed: %d\n", err);
+		if (err == -NRF_EALREADY) {
+			/* The nRF92 keeps scanning after the caller has given up (no abort on
+			 * timeout), so a stale scan blocks new ones. Cancel it so the next scan
+			 * can start; its late ABORTED result is dropped (scan_cb is NULL).
+			 */
+			LOG_WRN("Modem Wi-Fi scan already in progress; cancelling stale scan");
+			(void)nrf_modem_wifi_scan_cancel();
+		} else {
+			LOG_ERR("Starting Wi-Fi scan failed: %d", err);
+		}
 		scan_cb = NULL;
 		return err;
 	}

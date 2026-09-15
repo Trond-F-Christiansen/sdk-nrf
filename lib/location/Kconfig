@@ -137,6 +137,13 @@ config LOCATION_METHOD_WIFI_SCANNING_DWELL_TIME_PASSIVE
 	  Default value is set to 260 ms to cover at least two beacon intervals,
 	  (102.4 ms beacon interval + ~30 ms channel contention) * 2
 
+config LOCATION_METHOD_WIFI_SCANNING_NON_OVERLAPPING_CHANNELS_ONLY
+	bool "Scan only non-overlapping 2.4 GHz channels (1, 6, 11)"
+	help
+	  When the scan request does not specify channels, scan only channels 1, 6 and 11
+	  instead of all 14. This cuts scan time at the cost of missing access points
+	  parked on other channels.
+
 endif # LOCATION_METHOD_WIFI_SCANNING_PARAMS_OVERRIDE
 
 endif # LOCATION_METHOD_WIFI
