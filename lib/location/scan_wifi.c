@@ -161,6 +161,21 @@ void scan_wifi_execute(int32_t timeout, struct k_sem *wifi_scan_ready)
 	scan_params.dwell_time_active = CONFIG_LOCATION_METHOD_WIFI_SCANNING_DWELL_TIME_ACTIVE;
 	scan_params.dwell_time_passive = CONFIG_LOCATION_METHOD_WIFI_SCANNING_DWELL_TIME_PASSIVE;
 
+#if defined(CONFIG_LOCATION_METHOD_WIFI_SCANNING_NON_OVERLAPPING_CHANNELS_ONLY)
+	scan_params.band_chan[0] = (struct wifi_band_channel){
+		.band = WIFI_FREQ_BAND_2_4_GHZ,
+		.channel = 1,
+	};
+	scan_params.band_chan[1] = (struct wifi_band_channel){
+		.band = WIFI_FREQ_BAND_2_4_GHZ,
+		.channel = 6,
+	};
+	scan_params.band_chan[2] = (struct wifi_band_channel){
+		.band = WIFI_FREQ_BAND_2_4_GHZ,
+		.channel = 11,
+	};
+#endif
+
 	LOG_DBG("Scan params: dwell_active=%d, dwell_passive=%d",
 		scan_params.dwell_time_active,
 		scan_params.dwell_time_passive);

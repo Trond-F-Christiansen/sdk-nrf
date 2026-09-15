@@ -86,6 +86,20 @@
 };
 
 &mram1x {
+	/*
+	 * periphconf_partition and mpcconf_partition sit directly above
+	 * cpuapp_boot_partition so that they can be write protected: both
+	 * UICR.PROTECTEDMEM and the MCUboot MPCCONF override scheme cover a single
+	 * contiguous region anchored at the start of the bootloader partition, and
+	 * take a size with no base address. Their secondary counterparts stay below
+	 * cpuapp_slot1_partition because they are update staging and must remain
+	 * writable.
+	 *
+	 * secure_storage_partition must end exactly at the end of mram1x; see the
+	 * BUILD_ASSERT in the MCUboot IronSide SE MPC configuration.
+	 *
+	 * 0x4dc000-0x52d000 is left free for application specific partitions.
+	 */
 	partitions {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -96,14 +110,19 @@
 			reg = <0x312000 DT_SIZE_K(64)>;
 		};
 
-		cpuapp_slot0_partition: partition@322000 {
+		periphconf_partition: partition@322000 {
 			compatible = "zephyr,mapped-partition";
-			reg = <0x322000 DT_SIZE_K(380)>;
+			reg = <0x322000 DT_SIZE_K(8)>;
 		};
 
-		cpuapp_slot1_partition: partition@381000 {
+		mpcconf_partition: partition@324000 {
 			compatible = "zephyr,mapped-partition";
-			reg = <0x381000 DT_SIZE_K(380)>;
+			reg = <0x324000 512>;
+		};
+
+		cpuapp_slot0_partition: partition@325000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x325000 DT_SIZE_K(748)>;
 		};
 
 		cpuppr_code_partition: partition@3e0000 {
@@ -121,15 +140,30 @@
 			reg = <0x400000 DT_SIZE_K(40)>;
 		};
 
-		periphconf_partition: partition@40a000 {
+		secondary_partition: partition@40e000 {
 			compatible = "zephyr,mapped-partition";
-			reg = <0x40a000 DT_SIZE_K(8)>;
+			reg = <0x40e000 DT_SIZE_K(64)>;
 		};
 
-		secure_storage_partition: partition@40c000 {
+		secondary_periphconf_partition: partition@41e000 {
 			compatible = "zephyr,mapped-partition";
-			reg = <0x40c000 DT_SIZE_K(8)>;
-			ranges = <0x0 0x40c000 0x2000>;
+			reg = <0x41e000 DT_SIZE_K(8)>;
+		};
+
+		secondary_mpcconf_partition: partition@420000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x420000 512>;
+		};
+
+		cpuapp_slot1_partition: partition@421000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x421000 DT_SIZE_K(748)>;
+		};
+
+		secure_storage_partition: partition@52d000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x52d000 DT_SIZE_K(8)>;
+			ranges = <0x0 0x52d000 0x2000>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 
@@ -142,16 +176,6 @@
 				compatible = "zephyr,mapped-partition";
 				reg = <0x1000 DT_SIZE_K(4)>;
 			};
-		};
-
-		secondary_partition: partition@40e000 {
-			compatible = "zephyr,mapped-partition";
-			reg = <0x40e000 DT_SIZE_K(64)>;
-		};
-
-		secondary_periphconf_partition: partition@41e000 {
-			compatible = "zephyr,mapped-partition";
-			reg = <0x41e000 DT_SIZE_K(8)>;
 		};
 	};
 };
